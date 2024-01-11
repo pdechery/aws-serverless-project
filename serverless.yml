@@ -1,0 +1,58 @@
+org: pdechery
+service: aws-projects
+frameworkVersion: "3"
+
+provider:
+  name: aws
+  profile: default
+  stage: dev
+  runtime: python3.11
+
+# https://github.com/getlift/lift/blob/master/docs/queue.md
+constructs:
+  jobs:
+    type: queue
+    batchSize: 5
+    worker:
+      handler: consumer.handler
+
+functions:
+  producer:
+    handler: producer.handler
+    events:
+      - httpApi:
+          method: post
+          path: /produce
+    environment:
+      QUEUE_URL: ${construct:jobs.queueUrl}
+
+resources:
+  Resources:
+    artists:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: artists
+        AttributeDefinitions:
+          - AttributeName: name
+            AttributeType: S
+          - AttributeName: song
+            AttributeType: S
+        KeySchema:
+          - AttributeName: name
+            KeyType: HASH
+          - AttributeName: song
+            KeyType: RANGE
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+
+plugins:
+  - serverless-lift
+  - serverless-python-requirements
+
+package:
+  patterns:
+    - "!.git/**"
+    - "!node_modules/**"
+    - "!venv/**"
+    - "!data/**"

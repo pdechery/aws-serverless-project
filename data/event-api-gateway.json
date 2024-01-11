@@ -1,0 +1,39 @@
+{
+    "version": "2.0",
+    "routeKey": "POST /produce",
+    "rawPath": "/produce",
+    "rawQueryString": "",
+    "headers": {
+        "accept": "*/*",
+        "accept-encoding": "gzip, deflate, br",
+        "content-length": "33",
+        "content-type": "application/json",
+        "host": "xt8p2i6kg9.execute-api.us-east-1.amazonaws.com",
+        "postman-token": "4181ec19-7610-4702-be15-f05c2375faf4",
+        "user-agent": "PostmanRuntime/7.36.0",
+        "x-amzn-trace-id": "Root=1-659f12a0-2ef72ab82afbce4b367db53d",
+        "x-forwarded-for": "191.240.228.78",
+        "x-forwarded-port": "443",
+        "x-forwarded-proto": "https"
+    },
+    "requestContext": {
+        "accountId": "957452081947",
+        "apiId": "xt8p2i6kg9",
+        "domainName": "xt8p2i6kg9.execute-api.us-east-1.amazonaws.com",
+        "domainPrefix": "xt8p2i6kg9",
+        "http": {
+            "method": "POST",
+            "path": "/produce",
+            "protocol": "HTTP/1.1",
+            "sourceIp": "191.240.228.78",
+            "userAgent": "PostmanRuntime/7.36.0"
+        },
+        "requestId": "RV_ZGi8QoAMEP9g=",
+        "routeKey": "POST /produce",
+        "stage": "$default",
+        "time": "10/Jan/2024:21:56:48 +0000",
+        "timeEpoch": 1704923808396
+    },
+    "body": "{\\r\\n    \"name\":\"Pierre Dechery\"\\r\\n}",
+    "isBase64Encoded": false
+}
