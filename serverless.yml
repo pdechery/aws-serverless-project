@@ -8,14 +8,6 @@ provider:
   stage: dev
   runtime: python3.11
 
-# https://github.com/getlift/lift/blob/master/docs/queue.md
-constructs:
-  jobs:
-    type: queue
-    batchSize: 5
-    worker:
-      handler: consumer.handler
-
 functions:
   producer:
     handler: producer.handler
@@ -24,11 +16,18 @@ functions:
           method: post
           path: /produce
     environment:
-      QUEUE_URL: ${construct:jobs.queueUrl}
+        QUEUE_URL: !Ref ArtistsQueue
+  consumer:
+    handler: consumer.handler
+    timeout: 10 # seconds
+    events:
+      - sqs:
+          arn: !GetAtt ArtistsQueue.Arn
+          batchSize: 5
 
 resources:
   Resources:
-    artists:
+    ArtistsDB:
       Type: AWS::DynamoDB::Table
       Properties:
         TableName: artists
@@ -45,9 +44,27 @@ resources:
         ProvisionedThroughput:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
+    ArtistsQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: !Sub '${AWS::StackName}-artists-queue'
+        # 6 times the lambda function's timeout
+        VisibilityTimeout: 60
+        # Messages will be stored (and retried) up to 2 days
+        MessageRetentionPeriod: 172800
+        RedrivePolicy:
+          # Jobs will be retried 5 times
+          maxReceiveCount: 1
+          # Send failed messages to the dead letter queue
+          deadLetterTargetArn: !GetAtt ArtistsDLQ.Arn
+    ArtistsDLQ:
+      Type: AWS::SQS::Queue
+      Properties:
+        # Store messages up to 14 days (the max)
+        MessageRetentionPeriod: 1209600
+
 
 plugins:
-  - serverless-lift
   - serverless-python-requirements
 
 package:

@@ -1,3 +1,6 @@
+.serverless
+data
 venv/
 node_modules/
 __pycache__/
+*.sublime-*

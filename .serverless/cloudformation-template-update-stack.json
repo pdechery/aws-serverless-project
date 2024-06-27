@@ -77,10 +77,10 @@
         "LogGroupName": "/aws/lambda/aws-projects-dev-producer"
       }
     },
-    "JobsWorkerLogGroup": {
+    "ConsumerLogGroup": {
       "Type": "AWS::Logs::LogGroup",
       "Properties": {
-        "LogGroupName": "/aws/lambda/aws-projects-dev-jobsWorker"
+        "LogGroupName": "/aws/lambda/aws-projects-dev-consumer"
       }
     },
     "IamRoleLambdaExecution": {
@@ -144,21 +144,6 @@
                 {
                   "Effect": "Allow",
                   "Action": [
-                    "sqs:SendMessage",
-                    "sqs:ChangeMessageVisibility"
-                  ],
-                  "Resource": [
-                    {
-                      "Fn::GetAtt": [
-                        "jobsQueueCEDBAE3E",
-                        "Arn"
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "Effect": "Allow",
-                  "Action": [
                     "sqs:ReceiveMessage",
                     "sqs:DeleteMessage",
                     "sqs:GetQueueAttributes"
@@ -166,7 +151,7 @@
                   "Resource": [
                     {
                       "Fn::GetAtt": [
-                        "jobsQueueCEDBAE3E",
+                        "ArtistsQueue",
                         "Arn"
                       ]
                     }
@@ -199,7 +184,7 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/aws-projects/dev/1704981413698-2024-01-11T13:56:53.698Z/aws-projects.zip"
+          "S3Key": "serverless/aws-projects/dev/1704987810965-2024-01-11T15:43:30.965Z/aws-projects.zip"
         },
         "Handler": "producer.handler",
         "Runtime": "python3.11",
@@ -209,7 +194,7 @@
         "Environment": {
           "Variables": {
             "QUEUE_URL": {
-              "Ref": "jobsQueueCEDBAE3E"
+              "Ref": "ArtistsQueue"
             }
           }
         },
@@ -224,20 +209,20 @@
         "ProducerLogGroup"
       ]
     },
-    "JobsWorkerLambdaFunction": {
+    "ConsumerLambdaFunction": {
       "Type": "AWS::Lambda::Function",
       "Properties": {
         "Code": {
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/aws-projects/dev/1704981413698-2024-01-11T13:56:53.698Z/aws-projects.zip"
+          "S3Key": "serverless/aws-projects/dev/1704987810965-2024-01-11T15:43:30.965Z/aws-projects.zip"
         },
         "Handler": "consumer.handler",
         "Runtime": "python3.11",
-        "FunctionName": "aws-projects-dev-jobsWorker",
+        "FunctionName": "aws-projects-dev-consumer",
         "MemorySize": 1024,
-        "Timeout": 6,
+        "Timeout": 10,
         "Role": {
           "Fn::GetAtt": [
             "IamRoleLambdaExecution",
@@ -246,10 +231,10 @@
         }
       },
       "DependsOn": [
-        "JobsWorkerLogGroup"
+        "ConsumerLogGroup"
       ]
     },
-    "ProducerLambdaVersionjQAxicQiw78MOzPJcky4Z4SlP5506ta7M0y1iTmU": {
+    "ProducerLambdaVersionWojpq54nuvqP43Tl1kGsBQFxRxQBXhZjwbqSNv1uK8": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
@@ -259,40 +244,36 @@
         "CodeSha256": "UAKyBeQWFansEnv+JiVJS+75mEXjNjE3fyoB29tHYXI="
       }
     },
-    "JobsWorkerLambdaVersiontzTzeDZ2QyCsqDILIfmNQkNZwAFcb6Oi0SQCDcSb8A": {
+    "ConsumerLambdaVersionTobRPZEN7waVcOHGGLRERHQFFKvnJOiDrC7z18c": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
-          "Ref": "JobsWorkerLambdaFunction"
+          "Ref": "ConsumerLambdaFunction"
         },
         "CodeSha256": "UAKyBeQWFansEnv+JiVJS+75mEXjNjE3fyoB29tHYXI="
       }
     },
-    "JobsWorkerEventSourceMappingSQSJobsQueueCEDBAE3E": {
+    "ConsumerEventSourceMappingSQSArtistsQueue": {
       "Type": "AWS::Lambda::EventSourceMapping",
       "DependsOn": [
         "IamRoleLambdaExecution"
       ],
       "Properties": {
         "BatchSize": 5,
-        "MaximumBatchingWindowInSeconds": 0,
         "EventSourceArn": {
           "Fn::GetAtt": [
-            "jobsQueueCEDBAE3E",
+            "ArtistsQueue",
             "Arn"
           ]
         },
         "FunctionName": {
           "Fn::GetAtt": [
-            "JobsWorkerLambdaFunction",
+            "ConsumerLambdaFunction",
             "Arn"
           ]
         },
-        "Enabled": true,
-        "FunctionResponseTypes": [
-          "ReportBatchItemFailures"
-        ]
+        "Enabled": true
       }
     },
     "HttpApi": {
@@ -390,7 +371,7 @@
       },
       "DependsOn": "HttpApiIntegrationProducer"
     },
-    "artists": {
+    "ArtistsDB": {
       "Type": "AWS::DynamoDB::Table",
       "Properties": {
         "TableName": "artists",
@@ -420,32 +401,30 @@
         }
       }
     },
-    "jobsDlqD18CF374": {
+    "ArtistsQueue": {
       "Type": "AWS::SQS::Queue",
       "Properties": {
-        "MessageRetentionPeriod": 1209600,
-        "QueueName": "aws-projects-dev-jobs-dlq"
-      },
-      "UpdateReplacePolicy": "Delete",
-      "DeletionPolicy": "Delete"
-    },
-    "jobsQueueCEDBAE3E": {
-      "Type": "AWS::SQS::Queue",
-      "Properties": {
-        "QueueName": "aws-projects-dev-jobs",
+        "QueueName": {
+          "Fn::Sub": "${AWS::StackName}-artists-queue"
+        },
+        "VisibilityTimeout": 60,
+        "MessageRetentionPeriod": 172800,
         "RedrivePolicy": {
+          "maxReceiveCount": 1,
           "deadLetterTargetArn": {
             "Fn::GetAtt": [
-              "jobsDlqD18CF374",
+              "ArtistsDLQ",
               "Arn"
             ]
-          },
-          "maxReceiveCount": 3
-        },
-        "VisibilityTimeout": 36
-      },
-      "UpdateReplacePolicy": "Delete",
-      "DeletionPolicy": "Delete"
+          }
+        }
+      }
+    },
+    "ArtistsDLQ": {
+      "Type": "AWS::SQS::Queue",
+      "Properties": {
+        "MessageRetentionPeriod": 1209600
+      }
     }
   },
   "Outputs": {
@@ -460,19 +439,19 @@
     "ProducerLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "ProducerLambdaVersionjQAxicQiw78MOzPJcky4Z4SlP5506ta7M0y1iTmU"
+        "Ref": "ProducerLambdaVersionWojpq54nuvqP43Tl1kGsBQFxRxQBXhZjwbqSNv1uK8"
       },
       "Export": {
         "Name": "sls-aws-projects-dev-ProducerLambdaFunctionQualifiedArn"
       }
     },
-    "JobsWorkerLambdaFunctionQualifiedArn": {
+    "ConsumerLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "JobsWorkerLambdaVersiontzTzeDZ2QyCsqDILIfmNQkNZwAFcb6Oi0SQCDcSb8A"
+        "Ref": "ConsumerLambdaVersionTobRPZEN7waVcOHGGLRERHQFFKvnJOiDrC7z18c"
       },
       "Export": {
-        "Name": "sls-aws-projects-dev-JobsWorkerLambdaFunctionQualifiedArn"
+        "Name": "sls-aws-projects-dev-ConsumerLambdaFunctionQualifiedArn"
       }
     },
     "HttpApiId": {
@@ -507,27 +486,6 @@
       },
       "Export": {
         "Name": "sls-aws-projects-dev-HttpApiUrl"
-      }
-    },
-    "jobsQueueArnA5A2FF7E": {
-      "Description": "ARN of the \"jobs\" SQS queue.",
-      "Value": {
-        "Fn::GetAtt": [
-          "jobsQueueCEDBAE3E",
-          "Arn"
-        ]
-      }
-    },
-    "jobsQueueUrl573F5B7A": {
-      "Description": "URL of the \"jobs\" SQS queue.",
-      "Value": {
-        "Ref": "jobsQueueCEDBAE3E"
-      }
-    },
-    "jobsDlqUrl2C7FA9D4": {
-      "Description": "URL of the \"jobs\" SQS dead letter queue.",
-      "Value": {
-        "Ref": "jobsDlqD18CF374"
       }
     }
   }
