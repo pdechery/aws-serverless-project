@@ -1,5 +1,6 @@
 org: pdechery
-service: aws-projects
+app: aws-serverless-project
+service: simple-lambda-app
 frameworkVersion: "3"
 
 provider:
@@ -25,6 +26,7 @@ functions:
           arn: !GetAtt ArtistsQueue.Arn
           batchSize: 5
 
+# CloudFormation Syntax
 resources:
   Resources:
     ArtistsDB:
