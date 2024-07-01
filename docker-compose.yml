@@ -1,0 +1,6 @@
+services:
+  aws-serverless-project:
+    build: .
+    volumes:
+      - .:/app
+    command: tail -F anything
