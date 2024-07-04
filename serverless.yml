@@ -10,16 +10,16 @@ provider:
   runtime: python3.11
 
 functions:
-  producer:
-    handler: producer.handler
+  send_message_sqs:
+    handler: send_message_sqs.handler
     events:
       - httpApi:
-          method: post
-          path: /produce
+          method: get
+          path: /send
     environment:
         QUEUE_URL: !Ref ArtistsQueue
-  consumer:
-    handler: consumer.handler
+  send_records_dynamo:
+    handler: send_records_dynamo.handler
     timeout: 10 # seconds
     events:
       - sqs:
@@ -33,16 +33,16 @@ resources:
       Type: AWS::DynamoDB::Table
       Properties:
         TableName: artists
-        AttributeDefinitions:
-          - AttributeName: name
-            AttributeType: S
-          - AttributeName: song
-            AttributeType: S
         KeySchema:
-          - AttributeName: name
+          - AttributeName: artist
             KeyType: HASH
           - AttributeName: song
             KeyType: RANGE
+        AttributeDefinitions:
+          - AttributeName: artist
+            AttributeType: S
+          - AttributeName: song
+            AttributeType: S
         ProvisionedThroughput:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
@@ -68,7 +68,6 @@ resources:
 
 plugins:
   - serverless-python-requirements
-
 package:
   patterns:
     - "!.git/**"

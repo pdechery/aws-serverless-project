@@ -1,6 +1,6 @@
 services:
-  aws-serverless-project:
+  sls:
     build: .
     volumes:
       - .:/app
-    command: tail -F anything
+    command: tail -F /dev/null

@@ -1,6 +1,11 @@
 {
-  "devDependencies": {
-    "serverless-lift": "^1.29.0",
+  "name": "aws-serverless-project",
+  "version": "1.0.0",
+  "description": "Just a study on Lambdas and DynamoDb",
+  "main": "index.js",
+  "dependencies": {
     "serverless-python-requirements": "^6.1.0"
-  }
+  },
+  "author": "Pierre Dechery",
+  "license": "ISC"
 }

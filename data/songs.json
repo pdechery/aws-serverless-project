@@ -1,0 +1,31 @@
+[
+    {
+        "artist": "Pierre Dechery",
+        "song": "Assim Será",
+        "info": {
+            "arranjo": ["Guitarra","Baixo","Bateria"],
+            "data-gravacao": "2023-09-02T00:00:00Z",
+            "estilos": [
+                "Rock",
+                "Grungy",
+                "Guitar"
+            ],
+            "descricao": "Uma música bem antiga que sempre gostei"
+        }
+    },
+    {
+        "artist": "Pierre Dechery",
+        "song": "Parará",
+        "info": {
+            "arranjo": ["Guitarra","Baixo","Bateria"],
+            "data-gravacao": "2023-11-02T00:00:00Z",
+            "estilos": [
+                "Pop",
+                "Anos 80"
+            ],
+            "descricao": "Uma música nova bem legal"
+        },
+        "duracao": 300,
+        "plataformas": ["Souncloud","YouTube","Spotify"]
+    }
+]

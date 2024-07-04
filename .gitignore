@@ -1,5 +1,19 @@
+# Serverless Framework folder
 .serverless
+
+# Python Virtual Environment
 venv/
+
+# Node Modules
 node_modules/
+
+# Cache
 __pycache__/
+.pytest_cache
+
+# Text editor project
 *.sublime-*
+
+# Example payload data from AWS
+data/aws-*examples
+
